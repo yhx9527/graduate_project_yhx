@@ -11,6 +11,16 @@ import api
 from pages import home, results, crawling, analysing, about
 import dash
 
+img_dir = os.path.join(cur_file_path, 'assets', 'img')
+html_dir = os.path.join(cur_file_path, 'assets', 'html')
+if not os.path.exists(img_dir):
+    print('%s不存在，进行新建'%(img_dir))
+    os.mkdir(img_dir)
+if not os.path.exists(html_dir):
+    print('%s不存在，进行新建'%(html_dir))
+    os.mkdir(html_dir)
+
+
 def server_layout():
     return html.Div([
         dcc.Location(id='url', refresh=False),

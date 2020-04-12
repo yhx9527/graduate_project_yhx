@@ -1,0 +1,17 @@
+# ignore files
+.idea/
+.DS_Store
+__pycache__/
+svdca/__pycache__/
+*.py[cod]
+*.*.py[cod]
+dash_app/
+analyse/
+diggout/sims_data
+diggout/mymodel.d2v
+supply/proxy/douyin_analyse
+svdca/assets/html
+svdca/assets/img
+config.py
+alembic.ini
+

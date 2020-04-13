@@ -1,7 +1,7 @@
 from app import server
-from celery_app.tasks import crawling
+from celery_app.tasks import crawling, gen_model_task
 from flask import jsonify, request
-from diggout.user_similar import gen_model, gen_MatrixSimilarity
+# from diggout.user_similar import gen_model, gen_MatrixSimilarity
 from config import API_PWD
 
 @server.route('/status/<task_id>')
@@ -43,13 +43,19 @@ def api_gen_d2v():
     model = request.args.get('model')
     print('获取生成模型需要的密码', pwd, model)
     if pwd == API_PWD:
-        if model == 'd2v':
-            gen_model()
-        elif model == 'sim':
-            gen_MatrixSimilarity()
+        # if model == 'd2v':
+        #     gen_model()
+        # elif model == 'sim':
+        #     gen_MatrixSimilarity()
+        # else:
+        #     return '模型参数不正确'
+        # return '模型生成完成'
+        if model in ['d2v', 'sim']:
+            gen_model_task.apply_async(args=[model])
+            return '已开启模型生成任务'
         else:
             return '模型参数不正确'
-        return '模型生成完成'
+
     else:
         return '暗号不正确～'
 

@@ -3,6 +3,7 @@ from douyin_crawler.crawl_post_pt import Douyin
 from db.conn import Mymysql
 from db.db_models import Urltask
 import threading
+from diggout.user_similar import gen_model, gen_MatrixSimilarity
 conn = None
 lock = threading.Lock()
 
@@ -70,6 +71,13 @@ def addAnalyseCount(uid):
         print(res.analyse_count)
     conn.safeAction(session)
 
+@celery.task(ignore_result=True)
+def gen_model_task(model):
+    print('生成模型', model)
+    if model == 'sim':
+        gen_MatrixSimilarity()
+    elif model == 'd2v':
+        gen_model()
 # @celery.task(bind=True)
 # def task_get_similar(self, uid, threshold=0.5):
 #     print('正在加载数据...', uid)

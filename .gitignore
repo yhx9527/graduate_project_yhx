@@ -16,5 +16,6 @@ svdca/assets/img
 config.py
 alembic.ini
 config_production.py
+log/
 
 

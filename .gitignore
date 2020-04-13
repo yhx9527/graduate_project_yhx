@@ -9,10 +9,12 @@ dash_app/
 analyse/
 diggout/sims_data
 diggout/mymodel.d2v
+diggout/tmp
 supply/proxy/douyin_analyse
 svdca/assets/html
 svdca/assets/img
 config.py
 alembic.ini
 config_production.py
+
 

@@ -47,8 +47,10 @@ class MySSH(object):
         '''
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         print('执行%s:' % cmd)
-        print(stdout.readlines())
-        print(stderr.readlines())
+        for line in stdout.readlines():
+            print(line)
+        for line in stderr.readlines():
+            print(line)
 
 
     def close(self):
@@ -62,19 +64,23 @@ class MySSH(object):
 
 def upload_deploy():
     myssh = MySSH(SSH_IP, SSH_USERNAME, SSH_PWD)
-    enter_project = 'cd /root/graduate_project_yhx &&'
+    # enter_project = 'cd /root/graduate_project_yhx &&'
+    enter_project = 'cd /home/yuhanxiang/graduate_project_yhx &&'
+    # conda_cmd = 'source /root/anaconda3/etc/profile.d/conda.sh && conda activate scrapy &&'
+    conda_cmd = 'source activate scrapy &&'
+
     #上传配置文件
     print('上传配置文件')
-    myssh.sftp_put(join(cur_file_path, 'config_production.py'), join('/','root', 'graduate_project_yhx', 'config.py'))
+    myssh.sftp_put(join(cur_file_path, 'config_production.py'), join('/','home','yuhanxiang', 'graduate_project_yhx', 'config.py'))
     print('git拉取新代码')
     myssh.exc(enter_project+'git pull')
     #启动celery
-    print('启动celery')
-    celery_cmd = enter_project+'celery -A celery_app.tasks worker --loglevel=info'
-    myssh.exc(celery_cmd)
-    print('启动应用')
-    app_cmd = enter_project+'gunicorn -b 127.0.0.1:8080 svdca.index:server'
-    myssh.exc(app_cmd)
+    # print('启动celery')
+    # celery_cmd = conda_cmd + enter_project+'celery -A celery_app.tasks worker --loglevel=info'
+    # myssh.exc(celery_cmd)
+    # print('启动应用')
+    # app_cmd = conda_cmd+enter_project+'gunicorn -b 0.0.0.0:8000 svdca.index:server'
+    # myssh.exc(app_cmd)
 
 if __name__ == '__main__':
     upload_deploy()

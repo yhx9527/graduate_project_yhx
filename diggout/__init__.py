@@ -17,7 +17,13 @@ import pyLDAvis.sklearn
 import jieba.posseg as pseg
 
 jieba.enable_paddle()
+
 d = os.path.dirname(__file__)
+tmp_dir = os.path.join(d,'tmp')
+if not os.path.exists(tmp_dir):
+    os.mkdir(tmp_dir)
+jieba.dt.tmp_dir = tmp_dir
+
 stopwords_file = os.path.join(d,'cn_stopwords.txt')
 
 jieba.analyse.set_stop_words(stopwords_file)

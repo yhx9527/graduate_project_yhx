@@ -7,6 +7,7 @@ async def main():
     await page.goto('https://www.baidu.com')
     await page.screenshot({'path': 'example.png'})
     await browser.close()
-if __name__ == '__main__':
+
+if __name__ =='__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())

@@ -6,7 +6,7 @@ sys.path.append(cur_file_path)
 import pandas as pd
 from sqlalchemy import create_engine, or_
 from flask_caching import Cache
-from config import MYSQL_URL, REDIS_URL
+from config import MYSQL_URL, REDIS_URL, ENV
 from app import server,app
 from dash.dependencies import Input, Output
 import time
@@ -128,12 +128,21 @@ city_geo = pd.read_csv(os.path.join(data_dir, 'city_geo.csv'))
 
 @cache.memoize(timeout=random_time(3600))
 def global_all_posts():
-    posts = pd.read_csv(os.path.join(data_dir, 'posts.csv'))
+    print('加载文章数据到内存...')
+    if ENV == 'production':
+        posts = pd.read_sql_query('select * from posts', server.db.engine)
+    else:
+        posts = pd.read_csv(os.path.join(data_dir, 'posts.csv'))
     return pickle.dumps(posts)
 
 @cache.memoize(timeout=random_time(3600))
 def global_all_users():
-    users = pd.read_csv(os.path.join(data_dir, 'users.csv'))
+    print('加载用户数据到内存...')
+    if ENV == 'production':
+        users = pd.read_sql_query('select * from users', server.db.engine)
+    else:
+        users = pd.read_csv(os.path.join(data_dir, 'users.csv'))
+
     return pickle.dumps(users)
 
 @cache.memoize(timeout=random_time(3600))

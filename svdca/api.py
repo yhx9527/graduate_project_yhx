@@ -1,6 +1,9 @@
 from app import server
 from celery_app.tasks import crawling
-from flask import jsonify
+from flask import jsonify, request
+from diggout.user_similar import gen_model, gen_MatrixSimilarity
+from config import API_PWD
+
 @server.route('/status/<task_id>')
 def taskstatus(task_id):
     task = crawling.AsyncResult(task_id)
@@ -33,6 +36,24 @@ def taskstatus(task_id):
             'status': str(task.info),  # this is the exception raised
         }
     return jsonify(response)
+
+@server.route('/gen_model')
+def api_gen_d2v():
+    pwd = request.args.get('pwd')
+    model = request.args.get('model')
+    print('获取生成模型需要的密码', pwd, model)
+    if pwd == API_PWD:
+        if model == 'd2v':
+            gen_model()
+        elif model == 'sim':
+            gen_MatrixSimilarity()
+        else:
+            return '模型参数不正确'
+        return '模型生成完成'
+    else:
+        return '暗号不正确～'
+
+
 
 # @server.route('/similar_status/<task_id>')
 # def similar_tatus(task_id):

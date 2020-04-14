@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output,State
 from dash.exceptions import PreventUpdate
 from celery_app.tasks import addAnalyseCount
 from app import app
-from .common import header
+from .common import header, info_analyse
 import dash
 from store import global_forUserWCdata, global_user_data, cache
 from functools import reduce
@@ -38,7 +38,6 @@ layout = html.Div([
             ], className='control')
         ], className='field has-addons has-addons-centered tile is-6 search_input'),
     ], className='tile is-ancestor', style={'marginTop': '4rem', 'marginBottom': '2rem'}),
-
     html.Div([
         html.P([
             html.Span([
@@ -56,6 +55,7 @@ layout = html.Div([
     html.Div(id='hiddenParams', style={'display': 'none'}),
     dcc.Loading([
     ],id='waitUserWC',type='cube', style={'height': '60vh', 'marginTop': '10rem'}),
+    info_analyse.layout,
     html.Div([
         '未查询到用户，请先进行',
         html.A('爬取', href='/crawling'),
@@ -70,6 +70,12 @@ layout = html.Div([
     visdcc.Run_js(id='similarScript'),
     visdcc.Run_js(id='addlistenScript'),
 ])
+@app.callback(Output('info_analyse', 'style'),
+              [Input('startAnalyse', 'n_clicks')],
+              )
+def hiddenInfo(n):
+    return {'display': 'none'}
+
 
 @app.callback([Output('addlistenScript', 'run'),
                 Output('similarPanel', 'style')],
@@ -150,14 +156,24 @@ def startSearchSimilar(st, uid, nickname):
 
 
 @app.callback(Output('analyseInput', 'value'),
-              [Input('hiddenParams', 'children')]
+              [Input('hiddenParams', 'children'),
+               Input('example-analyse1', 'children'),
+               Input('example-analyse2', 'children'),
+               Input('example-analyse1', 'n_clicks'),
+               Input('example-analyse2', 'n_clicks')]
               )
-def setAnalyseInput(params):
-    print('$$$$$$', params)
-    par = doParams(params)
-    if par:
-        uid = par.get('uid')
-        return uid
+def setAnalyseInput(params, k1, k2, n1, n2):
+    origin = dash.callback_context.triggered[0].get('prop_id')
+    if origin =='hiddenParams.children':
+        print('$$$$$$', params)
+        par = doParams(params)
+        if par:
+            uid = par.get('uid')
+            return uid
+    elif origin == 'example-analyse1.n_clicks':
+        return k1
+    elif origin == 'example-analyse2.n_clicks':
+        return k2
     return dash.no_update
 def genTongji(duration_posts, pie_posts):
 

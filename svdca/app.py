@@ -25,6 +25,7 @@ external_scripts = [
 # external CSS stylesheets
 external_stylesheets = [
     'https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css',
+    '/assets/font-awesome4/css/font-awesome.min.css'
 ]
 
 app = dash.Dash(__name__, meta_tags=meta_tags, external_scripts=external_scripts, external_stylesheets=external_stylesheets)

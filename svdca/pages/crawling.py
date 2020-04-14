@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from app import app,server
-from .common import header
+from .common import header, info_crawl
 # from douyin_crawler.crawl_post_pt import Douyin, MyRedis
 from celery_app.tasks import crawling
 from flask import url_for
@@ -26,7 +26,7 @@ layout = html.Div([
         html.Div('', className='tile is-3'),
         html.Div([
             html.Div([
-                dcc.Input(className='input', type='text', placeholder='请输入抖音用户分享链接', id='crawlInput'),
+                dcc.Input(className='input', type='text', placeholder='请输入抖音用户链接', id='crawlInput'),
             ], className='control is-expanded'),
             html.Div([
                 html.Button('立即爬取', id='crawlBtn', className='button is-info'),
@@ -34,6 +34,7 @@ layout = html.Div([
         ], className='field has-addons has-addons-centered tile is-6 search_input'),
 
     ], className='tile is-ancestor', style={'marginTop': '4rem', 'marginBottom': '2rem'}),
+    info_crawl.layout,
     # html.P('正在爬取...', className='has-text-centered'),
     html.Div([
         html.Div('', className='tile is-2'),
@@ -80,6 +81,20 @@ layout = html.Div([
     ], className='tile is-ancestor', id='crawledCard', style={'display': 'none'}),
 
 ])
+@app.callback(Output('info_crawl', 'style'),
+              [Input('crawlBtn', 'n_clicks')],
+              )
+def hiddenInfo(n):
+    return {'display': 'none'}
+
+@app.callback(Output('crawlInput', 'value'),
+              [Input('example-crawl', 'n_clicks'),Input('example-crawl', 'children')],
+              )
+def fillInput(n,k):
+    origin = dash.callback_context.triggered[0].get('prop_id')
+    if origin == 'example-crawl.n_clicks':
+        return k
+    return dash.no_update
 
 @app.callback([Output('crawlShow', 'children'),
                Output('sessionStore', 'data'), Output('crawlingP', 'children'),

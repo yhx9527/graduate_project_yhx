@@ -36,8 +36,9 @@ layout = html.Div([
             html.Div([
                 html.Button('开始分析', id='startAnalyse', className='button is-primary'),
             ], className='control')
-        ], className='field has-addons has-addons-centered tile is-6'),
-    ], className='tile is-ancestor', style={'marginTop': '4rem'}),
+        ], className='field has-addons has-addons-centered tile is-6 search_input'),
+    ], className='tile is-ancestor', style={'marginTop': '4rem', 'marginBottom': '2rem'}),
+
     html.Div([
         html.P([
             html.Span([
@@ -51,7 +52,7 @@ layout = html.Div([
             ], id='similarPanel_content', className='simPanel_content'),
         ],id='similarPanel_loading'),
 
-    ],className='panel is-warning simPanel', id='similarPanel', style={'display': 'none'}),
+    ],className='panel is-warning simPanel media-simPanel', id='similarPanel', style={'display': 'none'}),
     html.Div(id='hiddenParams', style={'display': 'none'}),
     dcc.Loading([
     ],id='waitUserWC',type='cube', style={'height': '60vh', 'marginTop': '10rem'}),
@@ -187,6 +188,9 @@ def genTongji(duration_posts, pie_posts):
     return fig_tongji
 def genResult(src, user, iframe, **kwargs):
     tabs = html.Div([
+        html.Div('', className='tile is-3'),
+        html.Div([
+            html.Div([
                 html.Ul([
                     html.Li([
                         html.A('视频词云'),
@@ -196,9 +200,24 @@ def genResult(src, user, iframe, **kwargs):
                     ], id='tabsLDA'),
                     html.Li([
                         html.A('文章统计', ),
-                    ],id='tabsOther'),
+                    ], id='tabsOther'),
                 ])
-            ], className='tabs is-centered is-medium', style={'margin': '0 25% 2rem 25%'}),
+            ], className='tabs is-centered is-medium', style={'width': '100%'}),
+        ], className='tile is-6')
+    ], className='tile is-ancestor', style={'marginBottom': '1rem'})
+    # tabs = html.Div([
+    #             html.Ul([
+    #                 html.Li([
+    #                     html.A('视频词云'),
+    #                 ], className='is-active', id='tabsCloud', ),
+    #                 html.Li([
+    #                     html.A('LDA主题分析'),
+    #                 ], id='tabsLDA'),
+    #                 html.Li([
+    #                     html.A('文章统计', ),
+    #                 ],id='tabsOther'),
+    #             ])
+    #         ], className='tabs is-centered is-medium', style={'margin': '0 25% 2rem 25%'}),
     tabsColud = html.Div([
                 html.Img(src=src, className='', style={'max-width': '600px', 'min-width':'300px'}),
             ], className='wcImg', id='userWC'),
@@ -209,17 +228,20 @@ def genResult(src, user, iframe, **kwargs):
         html.Div(genTongji(**kwargs), style={'width': '100%'}),
     ], className='', id='userOther', style={'display': 'none', 'width': '100%'}),
     userInfo = html.Div([
+        html.Div('', className='tile is-3'),
+        html.Div([
+            html.Div([
                 html.Article([
                     html.Figure([
                         html.P([
                             html.Img(src=user.avatar)
-                        ],className='image is-64x64')
-                    ],className='media-left'),
+                        ], className='image is-64x64')
+                    ], className='media-left'),
                     html.Div([
                         html.Div([
                             html.P([
                                 html.Strong(user.nickname, id='recordNickName'),
-                                html.Small(' | '+user.user_id, style={'whiteSpace': 'pre'}),
+                                html.Small(' | ' + user.user_id, style={'whiteSpace': 'pre'}),
                                 html.P(user.user_id, style={'display': 'none'}, id='recordUserId'),
                                 html.Br(),
                                 html.Div(user.signature)
@@ -229,7 +251,7 @@ def genResult(src, user, iframe, **kwargs):
                             html.Div([
                                 html.Div([
                                     html.Span('作品: ', style={'whiteSpace': 'pre'}),
-                                    html.Span(format(user.aweme_count, ',')if user.aweme_count else '未知'),
+                                    html.Span(format(user.aweme_count, ',') if user.aweme_count else '未知'),
                                 ], className='level-item'),
                                 html.Div([
                                     html.Span('获赞: ', style={'whiteSpace': 'pre'}),
@@ -240,13 +262,16 @@ def genResult(src, user, iframe, **kwargs):
                                     html.Span(format(user.aweme_fans, ',') if user.aweme_fans else '未知'),
                                 ], className='level-item'),
                             ], className='level-left')
-                        ],className='level is-mobile')
-                    ],className='media-content'),
+                        ], className='level is-mobile')
+                    ], className='media-content'),
                     html.Div([
-                        html.Button('相似用户',className='button is-primary is-outlined is-small', id='searchSimalar')
+                        html.Button('相似用户', className='button is-primary is-outlined is-small', id='searchSimalar')
                     ], className='media-right')
-                ],className='media'),
-            ], className='box', style={'width': '50%', 'marginLeft': '25%', 'marginTop': '2rem'}),
+                ], className='media'),
+            ], className='box', style={'width': '100%'}),
+        ], className='tile is-6 search_input')
+    ], className='tile is-ancestor', style={'marginBottom': '1rem'}),
+
     fig = [userInfo, tabs, tabsColud, tabsLDA, tabsOther]
     return fig
 

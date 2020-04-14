@@ -43,8 +43,8 @@ nav_init= 'navbar-item'
 layout = html.Div([
     html.Div([
         html.Div([
-            html.Div('SVDCA |', className="has-text-weight-medium is-size-5"),
-            html.Div(' yhx', className="has-text-weight-medium is-size-6", style={'whiteSpace': 'pre'})
+            html.Span('SVDCA |', className="has-text-weight-medium is-size-5"),
+            html.Span(' yhx', className="has-text-weight-medium is-size-6", style={'whiteSpace': 'pre'})
         ], className='level')
     ], className="tile is-3", style={'alignSelf': 'baseline'}),
     dcc.Link([

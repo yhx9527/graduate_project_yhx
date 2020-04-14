@@ -24,50 +24,61 @@ layout = html.Div([
     dcc.Store(id='sessionStore', storage_type='session'),
     html.Div([
         html.Div('', className='tile is-3'),
-        # html.Div([
-            html.Div([
-                html.Div([
-                    dcc.Input(className='input', type='text', placeholder='请输入抖音用户分享链接', id='crawlInput'),
-                ], className='control is-expanded'),
-                html.Div([
-                    html.Button('立即爬取', id='crawlBtn', className='button is-info'),
-                ], className='control')
-            ], className='field has-addons has-addons-centered tile is-6'),
-        # ], className='tile is-8'),
-    ], className='tile is-ancestor', style={'marginTop': '4rem'}),
-    # html.P('正在爬取...', className='has-text-centered'),
-    html.Div(
         html.Div([
             html.Div([
-                html.P('爬取任务～', id='crawlingP'),
-                html.A('进入分析', href='/analysing', id='analyseBtn', target='_blank', style={'visibility': 'hidden'},
-                       className='button is-link is-inverted is-outlined')
-            ],
-                className='message-header'),
-            html.Div('', className='message-body', id='crawlShow', style={'overflow': 'scroll', 'height': '60vh'})
-        ], className='message is-link', style={'width': '60%'}),
-    id='showPanel',
-    style={'display': 'none', 'justifyContent': 'center'}),
+                dcc.Input(className='input', type='text', placeholder='请输入抖音用户分享链接', id='crawlInput'),
+            ], className='control is-expanded'),
+            html.Div([
+                html.Button('立即爬取', id='crawlBtn', className='button is-info'),
+            ], className='control')
+        ], className='field has-addons has-addons-centered tile is-6 search_input'),
+
+    ], className='tile is-ancestor', style={'marginTop': '4rem', 'marginBottom': '2rem'}),
+    # html.P('正在爬取...', className='has-text-centered'),
+    html.Div([
+        html.Div('', className='tile is-2'),
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.P('爬取任务～', id='crawlingP'),
+                    html.A('进入分析', href='/analysing', id='analyseBtn', target='_blank', style={'visibility': 'hidden'},
+                           className='button is-link is-inverted is-outlined')
+                ],
+                    className='message-header'),
+                html.Div('', className='message-body', id='crawlShow', style={'overflow': 'scroll', 'height': '60vh'})
+            ], className='message is-link', style={'width': '100%'})
+        ], className='tile is-8 search_input'),
+        ],
+    id='showPanel',className='tile is-ancestor',
+    style={'display':'none'}),
+
     visdcc.Run_js(id = 'crawlScript'),
     dcc.ConfirmDialog(
         id='confirm',
         message='已爬取过该用户，是否重新爬取?'
     ),
     html.Div([
-        html.Header([
-            html.Div('查询结果',id='crawled-title',className='card-header-title')
-        ],className='card-header'),
+        html.Div('', className='tile is-4'),
         html.Div([
             html.Div([
-                html.Div('时间',id='crawledLasttime'),
-                html.Br(),
-                html.Div('次数',id='crawledCount')
-            ],className='content')
-        ],className='card-content'),
-        html.Footer([
-            html.A('进入分析', href='/analysing', target='_blank', className='card-footer-item', id='analysedBtn')
-        ],className='card-footer'),
-    ],className='card crawled-display', id='crawledCard', style={'display': 'none'}),
+                html.Header([
+                    html.Div('查询结果',id='crawled-title',className='card-header-title')
+                ],className='card-header'),
+                html.Div([
+                    html.Div([
+                        html.Div('时间',id='crawledLasttime'),
+                        html.Br(),
+                        html.Div('次数',id='crawledCount')
+                    ],className='content')
+                ],className='card-content'),
+                html.Footer([
+                    html.A('进入分析', href='/analysing', target='_blank', className='card-footer-item', id='analysedBtn')
+                ],className='card-footer'),
+            ],className='card crawled-display', ),
+        ], className='tile is-4 search_input')
+
+    ], className='tile is-ancestor', id='crawledCard', style={'display': 'none'}),
+
 ])
 
 @app.callback([Output('crawlShow', 'children'),
@@ -95,7 +106,7 @@ def startCrawl(n,yes, no, url):
 
         return '', url_for('taskstatus', task_id=task.id), '爬取任务～' + url, \
                {'display': 'none'},'','', \
-               {'display': 'flex','justifyContent': 'center'}, False, False, href,href
+               {}, False, False, href,href
     elif origin =='confirm.cancel_n_clicks':
         print('显示已爬取的结果')
         # uid = global_uid(url)
@@ -118,7 +129,7 @@ def startCrawl(n,yes, no, url):
                 task = crawling.apply_async(args=[url])
                 return '', url_for('taskstatus', task_id=task.id), '爬取任务～'+url, \
                        {'display': 'none'}, '','',\
-                       {'display': 'flex', 'justifyContent': 'center'}, False, False, href, href
+                       {}, False, False, href, href
     # raise PreventUpdate
     return dash.no_update, dash.no_update, dash.no_update, \
            dash.no_update, dash.no_update, dash.no_update, \

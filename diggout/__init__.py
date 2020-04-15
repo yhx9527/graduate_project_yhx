@@ -74,7 +74,7 @@ def genCloudImg(data, imageUrl, uid):
     return os.path.join('/assets', 'html', filename)
 
 def genLdaHtml(data, uid):
-    # jieba.enable_paddle()
+    jieba.enable_paddle()
     first = Series(data).apply(chinese_word_cut) #分词
     second = first[first != '']
     third = [second[i:i + combine_step] for i in range(0, len(second), combine_step)]
@@ -101,7 +101,7 @@ def genLdaHtml(data, uid):
 ignore_flag=['m', 'w', 'xc', 'r', 'q', 'p', 'c' , 'u', 'v', 'd', 'TIME']
 def chinese_word_cut(text):
     # arr = jieba.analyse.extract_tags(text, topK=20, allowPOS=('n', 'ns', 'nr', 'nz', 'nt', 'nt', 'nw', 'vn', 'an', 'eng'))
-    words = pseg.cut(text)
+    words = pseg.cut(text, use_paddle=True)
     arr = []
     for word, flag in words:
         if flag not in ignore_flag:

@@ -47,7 +47,7 @@ def cut_word(df):
     result = df.groupby('user_id').agg({'user_id': 'min', 'desc': handle_agg})
     return result
 def cut_word2(df):
-    # jieba.enable_paddle()
+    jieba.enable_paddle()
     # ignore_flag = ['m', 'w', 'xc', 'r', 'q', 'p', 'c', 'u', 'v', 'd', 'TIME','x', 'uj', 'k', 't']
     need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC']
 
@@ -56,7 +56,7 @@ def cut_word2(df):
     def chinese_word_cut(text):
         text1 = re.sub(r'[^\w\s]', ' ', text).strip()
 
-        words = pseg.cut(text1)
+        words = pseg.cut(text1, use_paddle=True)
         arr = []
         for word, flag in words:
             temp = word.strip()

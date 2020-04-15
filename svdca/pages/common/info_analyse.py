@@ -4,9 +4,9 @@ layout = html.Div([
         '尝试分析一下',
         html.I(className='fa fa-line-chart'),
         html.Span(' '),
-        html.A('大司马解说', href='javascript:void(0);', id='example-analyse1'),
+        html.A('央视新闻', href='javascript:void(0);', id='example-analyse1'),
         html.Span(', '),
-        html.A('68728201181', href='javascript:void(0);', id='example-analyse2'),
+        html.A('66598046050', href='javascript:void(0);', id='example-analyse2'),
     ], className='website-info'),
     html.Div([
         html.Div('', className='tile is-2'),

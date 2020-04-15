@@ -47,7 +47,7 @@ def cut_word(df):
     result = df.groupby('user_id').agg({'user_id': 'min', 'desc': handle_agg})
     return result
 def cut_word2(df):
-    jieba.enable_paddle()
+    # jieba.enable_paddle()
     # ignore_flag = ['m', 'w', 'xc', 'r', 'q', 'p', 'c', 'u', 'v', 'd', 'TIME','x', 'uj', 'k', 't']
     need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC']
 
@@ -56,7 +56,7 @@ def cut_word2(df):
     def chinese_word_cut(text):
         text1 = re.sub(r'[^\w\s]', ' ', text).strip()
 
-        words = pseg.cut(text1, use_paddle=True)
+        words = pseg.cut(text1)
         arr = []
         for word, flag in words:
             temp = word.strip()
@@ -204,7 +204,7 @@ def get_d2v(doc, topN=10):
     # update_model(model, train_corpus[:1])
     return sims
 
-def get_similar(user_posts, topn=10, rate=0.3):
+def get_similar(user_posts, topn=10, rate=1):
     data = DataFrame(user_posts)
     print('进行分词处理..')
     result = cut_word2(data)
@@ -213,10 +213,10 @@ def get_similar(user_posts, topn=10, rate=0.3):
     print(list(result.desc))
     sims_d2v=get_d2v(result, topn)
     print('d2v模型下的： ', sims_d2v)
-    sims_matrix = get_MatrixSimilarity(result.desc[0], topn)
-    print('MatrixSimilarity下的', sims_matrix)
-    res = compute_sims(sims_d2v, sims_matrix, rate)
-    return res[:topn]
+    # sims_matrix = get_MatrixSimilarity(result.desc[0], topn)
+    # print('MatrixSimilarity下的', sims_matrix)
+    # res = compute_sims(sims_d2v, sims_matrix, rate)
+    return sims_d2v[:topn]
 
 def compute_sims(sims_d2v, sims_matrix, rate=0.5):
     def scale(data, range_values=(0,1)):
@@ -292,6 +292,7 @@ def save_model(model):
 if __name__ == '__main__':
     # get_MatrixSimilarity(['游戏', '主播', '直播', '英雄', '王者'])
     gen_model()
+    gen_MatrixSimilarity()
 
 
 

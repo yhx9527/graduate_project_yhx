@@ -57,7 +57,7 @@ layout = html.Div([
                                 html.I(className='fa fa-rocket')
                             ],className='timeline-icon'),
                             html.Div('用户关联性分析', className='title'),
-                            html.P('将用户的分词结果作为标签分别使用已训练好的doc2vec模型以及gensim的文档相似性查询进行交叉分析比对，最终得出与所分析用户最相似的用户',
+                            html.P('将用户的分词结果作为标签使用已训练好的doc2vec模型进行分析，最终得出与所分析用户最相似的用户',
                                    className='description')
                         ], className='timeline-content', href='#')
                     ],className='timeline'),

@@ -16,7 +16,7 @@ import pyLDAvis
 import pyLDAvis.sklearn
 import jieba.posseg as pseg
 
-jieba.enable_paddle()
+# jieba.enable_paddle()
 
 d = os.path.dirname(__file__)
 tmp_dir = os.path.join(d,'tmp')
@@ -74,6 +74,7 @@ def genCloudImg(data, imageUrl, uid):
     return os.path.join('/assets', 'html', filename)
 
 def genLdaHtml(data, uid):
+    jieba.enable_paddle()
     first = Series(data).apply(chinese_word_cut) #分词
     second = first[first != '']
     third = [second[i:i + combine_step] for i in range(0, len(second), combine_step)]

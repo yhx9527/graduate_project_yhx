@@ -45,7 +45,7 @@ layout = html.Div([
                                 html.I(className='fa fa-rocket')
                             ],className='timeline-icon'),
                             html.Div('LDA主题模型分析', className='title'),
-                            html.P('将分词结果转换为词向量，并使用LDA模型进行训练，最终将训练结果使用pyLDAvis进行可视化呈现', className='description')
+                            html.P('将分词结果进行聚类操作，然后转换为词向量，并使用LDA模型进行训练，最终将训练结果使用pyLDAvis进行可视化呈现', className='description')
                         ], className='timeline-content', href='#')
                     ],className='timeline'),
                     html.Div([

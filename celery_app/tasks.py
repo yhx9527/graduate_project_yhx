@@ -78,6 +78,7 @@ def gen_model_task(model):
         gen_MatrixSimilarity()
     elif model == 'd2v':
         gen_model()
+
 # @celery.task(bind=True)
 # def task_get_similar(self, uid, threshold=0.5):
 #     print('正在加载数据...', uid)

@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 from pandas import DataFrame
 import pickle
 import visdcc
-
+import threading
 
 d = os.path.dirname(__file__)
 
@@ -342,16 +342,28 @@ def setUserWC(n, keyword):
             fig = genResult(src=src, user=uidData['user'], iframe=htmlSrc, duration_posts=uidData['duration_posts'], pie_posts = uidData['pie_posts'])
             return ['', hidden] + fig
         elif flagImg:
-            genLdaHtml(uidData['data'], uid)
+            t1 = threading.Thread(target=genLdaHtml, args=(uidData['data'], uid))
+            t1.start()
+            t1.join()
+            # genLdaHtml(uidData['data'], uid)
             fig = genResult(src=src, user=uidData['user'], iframe=htmlSrc, duration_posts=uidData['duration_posts'], pie_posts = uidData['pie_posts'])
             return ['', hidden]+ fig
         elif flagHtml:
-            genCloudImg(uidData['data'], uidData['imageUrl'], uid)
+            t2 = threading.Thread(target=genCloudImg, args=(uidData['data'], uidData['imageUrl'], uid))
+            t2.start()
+            t2.join()
+            # genCloudImg(uidData['data'], uidData['imageUrl'], uid)
             fig = genResult(src=src, user=uidData['user'], iframe=htmlSrc, duration_posts=uidData['duration_posts'], pie_posts = uidData['pie_posts'])
             return ['', hidden]+ fig
         else:
-            genCloudImg(uidData['data'], uidData['imageUrl'], uid)
-            genLdaHtml(uidData['data'], uid)
+            t1 = threading.Thread(target=genLdaHtml, args=(uidData['data'], uid))
+            t2 = threading.Thread(target=genCloudImg, args=(uidData['data'], uidData['imageUrl'], uid))
+            t1.start()
+            t2.start()
+            t1.join()
+            t2.join()
+            # genCloudImg(uidData['data'], uidData['imageUrl'], uid)
+            # genLdaHtml(uidData['data'], uid)
             fig = genResult(src=src, user=uidData['user'], iframe=htmlSrc, duration_posts=uidData['duration_posts'], pie_posts = uidData['pie_posts'])
             return ['', hidden] + fig
     except Exception as e:

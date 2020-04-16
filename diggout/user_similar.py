@@ -15,6 +15,8 @@ from functools import reduce
 d = os.path.dirname(__file__)
 file = os.path.join(d, 'mymodel.d2v')
 sim_dir = os.path.join(d, 'sims_data')
+jieba.load_userdict(os.path.join(d, 'user_dict.txt'))
+
 
 def get_data_from_db():
     # MYSQL_URL = 'mysql+pymysql://root:mysql@12138@47.96.231.167:3306/douyin?charset=UTF8MB4'
@@ -49,7 +51,7 @@ def cut_word(df):
 def cut_word2(df):
     # jieba.enable_paddle()
     # ignore_flag = ['m', 'w', 'xc', 'r', 'q', 'p', 'c', 'u', 'v', 'd', 'TIME','x', 'uj', 'k', 't']
-    need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC']
+    need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC', 'x']
 
     ignore_words = stpwrdlst
 
@@ -292,7 +294,7 @@ def save_model(model):
 if __name__ == '__main__':
     # get_MatrixSimilarity(['游戏', '主播', '直播', '英雄', '王者'])
     gen_model()
-    gen_MatrixSimilarity()
+    # gen_MatrixSimilarity()
 
 
 

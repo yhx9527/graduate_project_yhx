@@ -11,28 +11,33 @@ from sqlalchemy.pool import NullPool
 # 启动 mitmdump -q -s ./start_proxy.py
 MYSQL_URI='mysql+pymysql://root:mysql@12138@47.96.231.167:3306/douyin?charset=utf8mb4' #utf8mb4插入表情
 import mitmproxy.addonmanager
+import sys
+import os
+cur_file_path = os.path.dirname(__file__)
+sys.path.append(os.path.join(cur_file_path, '..', '..'))
 
-class Mymysql(object):
-    def __init__(self):
-        print('proxy连接数据库...')
-        self.engine = create_engine(MYSQL_URI, pool_recycle=2400, pool_size=20, max_overflow=10)
-        metadata = MetaData(self.engine)
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
-        self.User_table = Table("users", metadata, autoload=True)  # autoload=True这个是关键
-        self.Post_table = Table("posts", metadata, autoload=True)  # autoload=True这个是关键
-        self.Comment_table = Table("comments", metadata, autoload=True)  # autoload=True这个是关键
-    def insert(self, arr, table):
-        try:
-            self.session.execute(self.__dict__[table].insert(), arr)
-            self.session.commit()
-            print('数据已插入', table)
-        except Exception as e:
-            print('数据插入异常,正在回滚', e)
-            self.session.rollback()
-        finally:
-            print('关闭session')
-            self.session.close()
+from db.conn import Mymysql
+# class Mymysql(object):
+#     def __init__(self):
+#         print('proxy连接数据库...')
+#         self.engine = create_engine(MYSQL_URI, pool_recycle=2400, pool_size=20, max_overflow=10)
+#         metadata = MetaData(self.engine)
+#         Session = sessionmaker(bind=self.engine)
+#         self.session = Session()
+#         self.User_table = Table("users", metadata, autoload=True)  # autoload=True这个是关键
+#         self.Post_table = Table("posts", metadata, autoload=True)  # autoload=True这个是关键
+#         self.Comment_table = Table("comments", metadata, autoload=True)  # autoload=True这个是关键
+#     def insert(self, arr, table):
+#         try:
+#             self.session.execute(self.__dict__[table].insert(), arr)
+#             self.session.commit()
+#             print('数据已插入', table)
+#         except Exception as e:
+#             print('数据插入异常,正在回滚', e)
+#             self.session.rollback()
+#         finally:
+#             print('关闭session')
+#             self.session.close()
     # def __exit__(self, exc_type, exc_val, exc_tb):
     #     print('实例销毁,关闭数据库连接')
     #     self.session.close()

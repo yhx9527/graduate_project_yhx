@@ -82,6 +82,7 @@ def genLdaHtml(data, uid):
     # third = [second[i:i + combine_step] for i in range(0, len(second), combine_step)]
     # four = [' '.join(item) for item in third] #语料生成
     # print(len(second), len(four))
+    # results = four
     results = divide_kinds(data)
     tf_vectorizer = CountVectorizer(strip_accents='unicode',
                                     max_features=n_features,
@@ -110,10 +111,11 @@ def chinese_word_cut(text):
     for word, flag in words:
         if flag in need_flag and len(word)>1:
             arr.append(word)
-    if len(arr) > 0:
-        return arr
-    else:
-        return None
+    # if len(arr) > 0:
+    #     return arr
+    # else:
+    #     return None
+    return ' '.join(arr)
 
 # 文本相似 聚类
 def divide_kinds(data, threshold=0.5):

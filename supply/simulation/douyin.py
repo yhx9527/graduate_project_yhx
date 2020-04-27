@@ -8,11 +8,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pymongo import MongoClient
 from time import sleep
+import sys
+import os
+cur_file_path = os.path.dirname(__file__)
+sys.path.append(cur_file_path)
 from config import *
 import re
 from sqlalchemy import create_engine, Table, MetaData
 from sqlalchemy.orm import sessionmaker
 from db.db_models import Star, User
+import time
+SWIPER_TIMEOUT=10*60
 
 class Douyin():
     def __init__(self):
@@ -70,40 +76,52 @@ class Douyin():
             first.click()
             print('进入作者页面...')
             sleep(10)
-            print('作品总数')
-            self.wait.until(EC.presence_of_element_located((By.ID, "com.ss.android.ugc.aweme:id/title")))
-            result = self.driver.find_element_by_id('com.ss.android.ugc.aweme:id/title').text
-            print(result)
-            count=0
-            try:
-                count = int(re.search(r'(\d+)',result).group(1))
-                first = self.wait.until(EC.presence_of_element_located(
-                    (By.XPATH, "//*[@resource-id='com.ss.android.ugc.aweme:id/jw']/android.widget.FrameLayout[1]")))
-            except Exception as e:
-                self.driver.back()
-                self.driver.back()
-                print(e)
-                continue
-            first.click()
-            print(count)
-            print('定位视频')
-
-            for num in range(0, count):
-                self.comment_get()
-                sleep(2)
-                self.swipe_video(1000) #真机
-                # self.swipe_video(550) #模拟器
-                print('第%s个视频'%(num))
-            self.driver.back();
+            last_time=time.time()
+            while True:
+                flag = self.swipe_posts_outer(800)
+                cur_time=time.time()
+                if (cur_time-last_time>SWIPER_TIMEOUT) or flag:
+                    break
             self.driver.back();
             self.driver.back();
             print(key.name,'爬取完成')
             key.if_crawl = 2
-            print(self.session.dirty)
-            print(key)
             self.update_star(key)
-            if ii==len(keyword)-1:
-                over = True
+        over = True
+            # print('作品总数')
+            # self.wait.until(EC.presence_of_element_located((By.ID, "com.ss.android.ugc.aweme:id/title")))
+            # result = self.driver.find_element_by_id('com.ss.android.ugc.aweme:id/title').text
+            # print(result)
+            # count=0
+            # try:
+            #     count = int(re.search(r'(\d+)',result).group(1))
+            #     first = self.wait.until(EC.presence_of_element_located(
+            #         (By.XPATH, "//*[@resource-id='com.ss.android.ugc.aweme:id/jw']/android.widget.FrameLayout[1]")))
+            # except Exception as e:
+            #     self.driver.back()
+            #     self.driver.back()
+            #     print(e)
+            #     continue
+            # first.click()
+            # print(count)
+            # print('定位视频')
+            #
+            # for num in range(0, count):
+            #     self.comment_get()
+            #     sleep(2)
+            #     self.swipe_video(1000) #真机
+            #     # self.swipe_video(550) #模拟器
+            #     print('第%s个视频'%(num))
+            # self.driver.back();
+            # self.driver.back();
+            # self.driver.back();
+            # print(key.name,'爬取完成')
+            # key.if_crawl = 2
+            # print(self.session.dirty)
+            # print(key)
+            # self.update_star(key)
+            # if ii==len(keyword)-1:
+            #     over = True
     def update_star(self,key):
         try:
             usr = self.session.query(Star).filter(Star.name == key.name).first()
@@ -156,6 +174,19 @@ class Douyin():
             return False
         except Exception as e:
             print('评论滑动失败', e)
+            return True
+    def swipe_posts_outer(self, dis):
+        flag = self.isElementExist('//*[contains(@text, "暂时没有更多了")]')
+        if flag:
+            print('plun滑动结束...')
+            return True
+        try:
+            self.driver.swipe(FLICK_START_X, FLICK_START_Y + dis, FLICK_START_X, FLICK_START_Y, 500)
+            sleep(SCROLL_SLEEP_TIME)
+            print('个人首页视频滑动...')
+            return False
+        except Exception as e:
+            print('个人首页视频滑动', e)
             return True
     def swipe_video(self, dis):
         try:

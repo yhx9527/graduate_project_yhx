@@ -14,6 +14,7 @@ class Mymysql(object):
         self.Post_table = Table("posts", metadata, autoload=True)  # autoload=True这个是关键
         self.UrlTask_table = Table("urltasks", metadata, autoload=True)
         self.User_table = Table("users", metadata, autoload=True)  # autoload=True这个是关键
+        self.Star_table = Table("stars", metadata, autoload=True)  # autoload=True这个是关键
         print('已连接了')
 
     def insert(self, arr, table, session=None):

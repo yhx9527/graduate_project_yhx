@@ -33,8 +33,8 @@ class Douyin():
         print('连接数据库...')
         self.engine = create_engine(MYSQL_URI, echo=False, encoding="utf-8", pool_recycle=2400, pool_size=20, max_overflow=10, pool_pre_ping=True)
         metadata = MetaData(self.engine)
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
+        self.Session = sessionmaker(bind=self.engine)
+        # self.session = Session()
         # self.Star_table = Table("stars", metadata, autoload=True)
     def start(self):
         """
@@ -56,12 +56,20 @@ class Douyin():
         el3.click()
     def search(self):
         global over
+        session = self.Session()
         print('进入搜索栏...')
         el4 = self.wait.until(EC.presence_of_element_located((By.ID, "com.ss.android.ugc.aweme:id/afs")))
         el4.click()
         print('搜索中...')
-        keyword = self.get_data()
-        for ii, key in enumerate(keyword):
+        while True:
+            key = session.query(Star).filter(Star.if_crawl == None).first()
+            session.close()
+            if not key:
+                break
+
+
+        # keyword = self.get_data()
+        # for ii, key in enumerate(keyword):
             print('正在爬取',key.name)
             key.if_crawl=1
             self.update_star(key)
@@ -75,7 +83,11 @@ class Douyin():
             first = self.wait.until(EC.presence_of_element_located((By.XPATH, "//*[@resource-id='com.ss.android.ugc.aweme:id/lp']/android.widget.RelativeLayout[1]")))
             first.click()
             print('进入作者页面...')
-            sleep(10)
+            postBtn = self.wait.until(EC.presence_of_element_located(
+                (By.XPATH, "//*[@resource-id='com.ss.android.ugc.aweme:id/a_t']//*[contains(@text, '作品')]")))
+            print('点击作品')
+            postBtn.click()
+            # sleep(10)
             last_time=time.time()
             while True:
                 flag = self.swipe_posts_outer(800)
@@ -123,24 +135,27 @@ class Douyin():
             # if ii==len(keyword)-1:
             #     over = True
     def update_star(self,key):
+        print('修改爬取状态')
+        session = self.Session()
         try:
-            usr = self.session.query(Star).filter(Star.name == key.name).first()
+            usr = session.query(Star).filter(Star.name == key.name).first()
             usr.if_crawl = key.if_crawl
-            self.session.add(usr)
-            self.session.commit()
+            session.add(usr)
         except Exception as e:
             print('插入出错,正在回滚...', e)
-            self.session.rollback()
+            session.rollback()
             raise
         finally:
-            print('关闭连接')
-            self.session.close()
+            session.commit()
+            session.close()
+
 
     def get_data(self):
         print('获取数据库数据...')
-        data = self.session.query(Star).order_by("area").filter(Star.if_crawl==None).all()
+        session = self.Session()
+        data = session.query(Star).order_by("area").filter(Star.if_crawl==None).all()
         print('数据长度:', len(data))
-        self.session.close()
+        session.close()
         return data
     def comment_get(self):
         TouchAction(self.driver).tap(x=985, y=1015, count=1).perform() # 真机位置
@@ -248,7 +263,7 @@ class Douyin():
             print('模拟操作出错', e)
         finally:
             print('关闭数据库')
-            self.session.close()
+            # self.session.close()
 over = False
 if __name__ == '__main__':
     while True:

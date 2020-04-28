@@ -1,11 +1,19 @@
+'''
+启动定时beat： celery -A celery_app.tasks beat -l info
+启动worker： celery -A celery_app.tasks worker --loglevel=info
+
+'''
 from celery_app import celery
 from douyin_crawler.crawl_post_pt import Douyin
+from douyin_crawler.crawl_star import NewRank
 from db.conn import Mymysql
 from db.db_models import Urltask
 import threading
 from diggout.user_similar import gen_model, gen_MatrixSimilarity
 conn = None
 lock = threading.Lock()
+
+
 
 @celery.task
 def startDB():
@@ -29,6 +37,12 @@ def get_conn():
         conn = Mymysql()
     lock.release()
     return conn
+
+@celery.task
+def get_newrank():
+    conn = get_conn()
+    ranker = NewRank(conn)
+    ranker.run()
 
 @celery.task(bind=True)
 def crawling(self, url):

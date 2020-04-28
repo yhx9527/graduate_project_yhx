@@ -15,5 +15,26 @@ celery = Celery('tasks', broker=config['CELERY_BROKER_URL'])
 
 celery.conf.update(config)
 
+celery.conf.CELERY_TIMEZONE = 'Asia/Shanghai'  #配置时区
+celery.conf.ENABLE_UTC = False      # 是否使用UTC
+
+'''
+    定时任务
+'''
+from datetime import timedelta
+from celery.schedules import crontab
+celery.conf.CELERYBEAT_SCHEDULE = {
+    #任务名称自定义可随意
+    'get_newrank_schedule': {
+        'task': 'celery_app.tasks.get_newrank',#任务所在路径且指定哪个任务
+        'schedule': crontab(minute=0, hour=3),  #定时相关
+    },
+    'gen_model_task_schedule': {
+        'task': 'celery_app.tasks.gen_model_task',
+        'schedule': crontab(minute=0, hour=1),
+        'kwargs':{'model':'d2v'}
+    }
+}
+
 
 

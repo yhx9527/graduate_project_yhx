@@ -72,7 +72,7 @@ def upload_deploy():
     print('git拉取新代码')
     myssh.exc(enter_project+'git pull')
     #启动服务
-    app_cmd = 'supervisorctl restart svdca_app svdca_celery'
+    app_cmd = 'supervisorctl restart svdca_app svdca_celery_beat svdca_celery'
     myssh.exc(app_cmd)
 
 if __name__ == '__main__':

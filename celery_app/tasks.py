@@ -53,25 +53,29 @@ def crawling(self, url):
     id=1
     data = []
     for item in douyin.getPost(url):
-        info = handleItem(item)
+        info, nickname = handleItem(item)
         data.append(item)
         cur = len(item.get('aweme_list', []))
         sum+=cur
-        self.update_state(state='PROGRESS',meta={'result': info, 'status': '爬取中...', 'end':0, 'id': id, 'cur': cur})
+        self.update_state(state='PROGRESS',meta={'result': info, 'status': '爬取中...', 'end':0, 'id': id, 'cur': cur, 'nickname':nickname})
         id+=1
     result = '''
         共爬取{}条数据
     '''.format(sum)
-    return {'result': [], 'status': '爬取结束！！！'+result, 'end': 1, 'id': id, 'cur':0, 'data': data}
+    return {'result': [], 'status': '爬取结束！！！'+result,
+            'end': 1, 'id': id, 'cur':0, 'data': data,
+            'nickname':nickname}
 
 def handleItem(item):
     aweme_list = item.get('aweme_list', [])
     info = [item.get('desc', '') for item in aweme_list]
+    if len(aweme_list)>0:
+        nickname = aweme_list[0].get('author',{}).get('nickname','')
     # info = ''
     # for post in aweme_list:
     #     desc = post.get('desc')
     #     info+='#{}'.format(desc)
-    return info
+    return info, nickname
 
 @celery.task(ignore_result=True)
 def addAnalyseCount(uid):

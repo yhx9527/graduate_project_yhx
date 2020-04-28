@@ -54,6 +54,7 @@ layout = html.Div([
     style={'display':'none'}),
 
     visdcc.Run_js(id = 'crawlScript'),
+    visdcc.Run_js(id='crawlScript1'),
     dcc.ConfirmDialog(
         id='confirm',
         message='已爬取过该用户，是否重新爬取?'
@@ -194,4 +195,13 @@ def removeAnalyseResult(uid):
         remove(target_img)
     return True
 
-
+@app.callback(Output('crawlScript1', 'run'),
+              [Input('crawlBtn', 'n_clicks')],
+              [State('crawlInput', 'value')],
+              )
+def refind(n, url):
+    uid = global_uid(url)
+    script = '''
+        window.history.pushState({}, 'crawled', 'crawling?uid=%s')
+    '''%uid
+    return script

@@ -111,11 +111,11 @@ def chinese_word_cut(text):
     for word, flag in words:
         if flag in need_flag and len(word)>1:
             arr.append(word)
-    # if len(arr) > 0:
-    #     return arr
-    # else:
-    #     return None
-    return ' '.join(arr)
+    if len(arr) > 0:
+        return arr
+    else:
+        return None
+    # return ' '.join(arr)
 
 # 文本相似 聚类
 def divide_kinds(data, threshold=0.5):

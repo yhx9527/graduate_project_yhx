@@ -15,6 +15,7 @@ def taskstatus(task_id):
             'status': '爬虫启动中...',
             'id': 0,
             'cur': 0,
+            'nickname': '',
         }
     elif task.state != 'FAILURE':
         response = {
@@ -24,6 +25,7 @@ def taskstatus(task_id):
             'status': task.info.get('status', ''),
             'id': task.info.get('id', 0),
             'cur': task.info.get('cur', 0),
+            'nickname':task.info.get('nickname', '')
         }
     else:
         # something went wrong in the background job
@@ -33,6 +35,7 @@ def taskstatus(task_id):
             'end': 1,
             'result': [],
             'cur': 0,
+            'nickname': '',
             'status': str(task.info),  # this is the exception raised
         }
     return jsonify(response)

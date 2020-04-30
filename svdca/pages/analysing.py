@@ -10,7 +10,7 @@ from store import global_forUserWCdata, global_user_data, cache
 from functools import reduce
 import os
 import time
-from diggout import genLdaHtml, genCloudImg
+from diggout import genLdaHtml, genCloudImg, genSTTMHtml
 from diggout.user_similar import get_similar
 import plotly.express as px
 import plotly.graph_objects as go
@@ -212,7 +212,7 @@ def genResult(src, user, iframe, **kwargs):
                         html.A('视频词云'),
                     ], className='is-active', id='tabsCloud', ),
                     html.Li([
-                        html.A('LDA主题分析'),
+                        html.A('短文本主题建模'),
                     ], id='tabsLDA'),
                     html.Li([
                         html.A('文章统计', ),
@@ -342,7 +342,7 @@ def setUserWC(n, keyword):
             fig = genResult(src=src, user=uidData['user'], iframe=htmlSrc, duration_posts=uidData['duration_posts'], pie_posts = uidData['pie_posts'])
             return ['', hidden] + fig
         elif flagImg:
-            t1 = threading.Thread(target=genLdaHtml, args=(uidData['data'], uid))
+            t1 = threading.Thread(target=genSTTMHtml, args=(uidData['data'], uid))
             t1.start()
             t1.join()
             # genLdaHtml(uidData['data'], uid)
@@ -356,7 +356,7 @@ def setUserWC(n, keyword):
             fig = genResult(src=src, user=uidData['user'], iframe=htmlSrc, duration_posts=uidData['duration_posts'], pie_posts = uidData['pie_posts'])
             return ['', hidden]+ fig
         else:
-            t1 = threading.Thread(target=genLdaHtml, args=(uidData['data'], uid))
+            t1 = threading.Thread(target=genSTTMHtml, args=(uidData['data'], uid))
             t2 = threading.Thread(target=genCloudImg, args=(uidData['data'], uidData['imageUrl'], uid))
             t1.start()
             t2.start()

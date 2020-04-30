@@ -72,7 +72,7 @@ class Douyin():
         # for ii, key in enumerate(keyword):
             print('正在爬取',key.name)
             key.if_crawl=1
-            self.update_star(key)
+            # self.update_star(key)
             polling = self.wait.until(EC.presence_of_element_located((By.ID, "com.ss.android.ugc.aweme:id/jt")))
             polling.click()
             polling.send_keys(key.name)

@@ -27,15 +27,19 @@ def get_data_from_db():
 
 def cut_word(df):
     jieba.enable_paddle()
+
     ignore_flag = ['m', 'w', 'xc', 'r', 'q', 'p', 'c', 'u', 'v', 'd', 'TIME']
     ignore_words = stpwrdlst
     def chinese_word_cut(text):
+        # 去除标点符号
         text1 = re.sub(r'[^\w\s]', ' ', text).strip()
 
         words = pseg.cut(text1, use_paddle=True)
         arr = []
         for word, flag in words:
+            # 去除单词前后空格
             temp = word.strip()
+            # 过滤词性和停用词
             if (flag not in ignore_flag) and (temp not in ignore_words):
                 arr.append(temp)
         return arr
@@ -43,37 +47,32 @@ def cut_word(df):
     def handle_agg(desc):
         arr = []
         for item in desc:
+            # 同个作者的所有视频描述进行拼接，用于描述作者的作品特征
             arr += chinese_word_cut(item)
         return arr
 
     result = df.groupby('user_id').agg({'user_id': 'min', 'desc': handle_agg})
     return result
 def cut_word2(df):
-    # jieba.enable_paddle()
-    # ignore_flag = ['m', 'w', 'xc', 'r', 'q', 'p', 'c', 'u', 'v', 'd', 'TIME','x', 'uj', 'k', 't']
     need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC', 'x']
 
     ignore_words = stpwrdlst
 
     def chinese_word_cut(text):
+        # 去除标点符号
         text1 = re.sub(r'[^\w\s]', ' ', text).strip()
 
         words = pseg.cut(text1)
         arr = []
         for word, flag in words:
+            # 去除单词前后空格
             temp = word.strip()
+            # 保留需要的词性和过滤停用词
             if (flag in need_flag) and (temp not in ignore_words):
                 arr.append(temp)
         return arr
 
-        # words = jieba.cut(text)
-        # arr = []
-        # for word in words:
-        #     temp = word.strip()
-        #     if temp not in ignore_words:
-        #         arr.append(temp)
-        # return arr
-
+    # 同个作者的所有视频描述进行拼接，用于描述作者的作品特征
     def handle_agg(desc):
         arr = []
         for item in desc:
@@ -88,7 +87,7 @@ def gen_train_corpus(df):
     def handleRow(row):
         tokens = row.desc
         if len(tokens) > 0:
-
+            # 构建TaggedDocument，即转换成单词列表和标签的形式
             return gensim.models.doc2vec.TaggedDocument(tokens, [row.user_id])
         return None
 
@@ -108,9 +107,12 @@ def gen_model():
     print('生成训练数据...')
     train_corpus = gen_train_corpus(result)
     print('生成模型...')
-    model = gensim.models.doc2vec.Doc2Vec(vector_size=100, min_count=2, epochs=10)
+    model = gensim.models.doc2vec.Doc2Vec(vector_size=100, min_count=1, epochs=10)
+    print('构建词汇表...')
     model.build_vocab(train_corpus)
+    print('开始训练模型...')
     model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+    print('训练完毕，保存模型！')
     save_model(model)
     return model
 

@@ -17,6 +17,7 @@ import pyLDAvis.sklearn
 import jieba.posseg as pseg
 from gensim import models, similarities, corpora
 import re
+from .sttm2vis import gen_mgp, prepare_data, showResult
 
 # jieba.enable_paddle()
 d = os.path.dirname(__file__)
@@ -75,21 +76,61 @@ def genCloudImg(data, imageUrl, uid):
 
     return os.path.join('/assets', 'html', filename)
 
+
+def genSTTMHtml(data, uid):
+    print('数据预处理...')
+    first = Series(data).apply(chinese_word_cut)  # 分词
+    tmp = first[first.notnull()]
+
+    docs = [item for item in tmp if len(item) > 2]
+    if len(docs)<2:
+        print('数据量过少')
+        return;
+    K = min(max(len(docs)//100, 2), 10)
+
+    # docs_len = len(docs)
+    # if docs_len < 10:
+    #     print('数据量过少')
+    #     return;
+    # if docs_len < 30:
+    #     K=2
+    # elif docs_len < 100:
+    #     K=3
+    # elif docs_len < 200:
+    #     K=5
+    mgp = gen_mgp(K)
+    vocab = set([x for doc in docs for x in doc])
+    mgp.fit(docs, len(vocab))
+    showResult(mgp)
+    print('模型可视化...')
+    pytest = prepare_data(mgp, docs, vocab)
+    movies_vis_data = pyLDAvis.prepare(**pytest)
+
+    filename = '{}.html'.format(uid)
+    filepath = os.path.join(save_html_dir, filename)
+    pyLDAvis.save_html(movies_vis_data, filepath)
+    return os.path.join('/assets', 'html', filename)
+
+# def genLdaHtml():
+#     pass
+
 def genLdaHtml(data, uid):
     # jieba.enable_paddle()
-    # first = Series(data).apply(chinese_word_cut) #分词
+    first = Series(data).apply(chinese_word_cut) #分词
+    tmp = first[first.notnull()]
+    results = [' '.join(item) for item in tmp]
     # second = first[first != '']
     # third = [second[i:i + combine_step] for i in range(0, len(second), combine_step)]
     # four = [' '.join(item) for item in third] #语料生成
     # print(len(second), len(four))
     # results = four
-    results = divide_kinds(data)
+    # results = divide_kinds(data)
     tf_vectorizer = CountVectorizer(strip_accents='unicode',
                                     max_features=n_features,
                                     stop_words=stpwrdlst,
                                     )
     tf = tf_vectorizer.fit_transform(results) #向量化
-    n_topics = 5
+    n_topics = 10
 
     lda = LatentDirichletAllocation(n_topics, max_iter=50,
                                     learning_method='batch',
@@ -109,7 +150,7 @@ def chinese_word_cut(text):
     words = pseg.cut(text)
     arr = []
     for word, flag in words:
-        if flag in need_flag and len(word)>1:
+        if flag in need_flag and len(word)>1 and (word not in stpwrdlst):
             arr.append(word)
     if len(arr) > 0:
         return arr

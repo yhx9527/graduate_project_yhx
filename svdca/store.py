@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 import re
 from db.db_models import Urltask, Post, User
 import random
-from celery_app.tasks import get_conn
+from db.conn import get_conn
 import pickle
 
 CACHE_CONFIG = {
@@ -121,6 +121,7 @@ def delete_global_forUserWCdata(uid):
     temp = cache.delete_memoized(global_forUserWCdataCache, uid)
     print('删除结果', temp)
     return temp
+
 
 
 data_dir = os.path.join(cur_file_path,'data')

@@ -6,20 +6,31 @@
 from celery_app import celery
 from douyin_crawler.crawl_post_pt import Douyin
 from douyin_crawler.crawl_star import NewRank
-from db.conn import Mymysql
+from db.conn import get_conn
 from db.db_models import Urltask
 import threading
 from diggout.user_similar import gen_model, gen_MatrixSimilarity
-conn = None
-lock = threading.Lock()
+# conn = None
+# lock = threading.Lock()
+from flask_caching import Cache
+from config import REDIS_URL
+from flask import Flask
+
+CACHE_CONFIG = {
+        # try 'filesystem' if you don't want to setup redis
+        'CACHE_TYPE': 'redis',
+        'CACHE_REDIS_URL': REDIS_URL,
+    }
+temp_app = Flask(__name__)
+cache = Cache(config=CACHE_CONFIG)
+cache.init_app(temp_app)
 
 
-
-@celery.task
-def startDB():
-    global conn
-    conn = Mymysql()
-    return True
+# @celery.task
+# def startDB():
+#     # global conn
+#     # conn = Mymysql()
+#     return True
 
 # def start_crawling(url):
 #     chain = get_conn.s() | crawling.s(url)
@@ -29,14 +40,14 @@ def startDB():
 #     chain = get_conn.s() | addAnalyseCount.s(uid)
 #     return chain()
 
-def get_conn():
-    global conn, lock
-    lock.acquire()
-    if not conn:
-        print('conn不存在重新初始化', conn)
-        conn = Mymysql()
-    lock.release()
-    return conn
+# def get_conn():
+#     global conn, lock
+#     lock.acquire()
+#     if not conn:
+#         print('conn不存在重新初始化', conn)
+#         conn = Mymysql()
+#     lock.release()
+#     return conn
 
 @celery.task
 def get_newrank():
@@ -45,7 +56,7 @@ def get_newrank():
     ranker.run()
 
 @celery.task(bind=True)
-def crawling(self, url):
+def crawling(self, url, uid):
     conn = get_conn()
     print('启动爬取任务: ')
     douyin = Douyin(conn)
@@ -62,6 +73,8 @@ def crawling(self, url):
     result = '''
         共爬取{}条数据
     '''.format(sum)
+    print('爬取完成,清除该任务', uid)
+    cache.delete(uid)
     return {'result': [], 'status': '爬取结束！！！'+result,
             'end': 1, 'id': id, 'cur':0, 'data': data,
             'nickname':nickname}

@@ -10,7 +10,7 @@ from flask import url_for
 from hyper import HTTPConnection
 from urllib.parse import urlparse
 from db.db_models import Urltask
-from store import global_uid, global_urltask, delete_global_forUserWCdata
+from store import global_uid, global_urltask, delete_global_forUserWCdata, cache
 import re
 import requests
 import visdcc
@@ -115,11 +115,19 @@ def startCrawl(n,yes, no, url):
     uid = global_uid(url)
     origin = dash.callback_context.triggered[0].get('prop_id')
     href = '/analysing?uid={}'.format(uid)
+    cache_result = cache.get(uid)
+    print('查看是否有相同任务', cache_result)
+    if cache_result:
+        print('存在正在进行的相同任务')
+        return '', url_for('taskstatus', task_id=cache_result), '爬取任务～' + url, \
+               {'display': 'none'}, '', '', \
+               {}, False, False, href, href
+
     if origin =='confirm.submit_n_clicks':
         print('重新爬取')
-        task = crawling.apply_async(args=[url])
+        task = crawling.apply_async(args=[url,uid])
         removeAnalyseResult(uid)
-
+        cache.set(uid, task.id)
         return '', url_for('taskstatus', task_id=task.id), '爬取任务～' + url, \
                {'display': 'none'},'','', \
                {}, False, False, href,href
@@ -142,7 +150,8 @@ def startCrawl(n,yes, no, url):
                        dash.no_update, True, False, href, href
             else:
                 print('未爬过,开始爬取')
-                task = crawling.apply_async(args=[url])
+                task = crawling.apply_async(args=[url, uid])
+                cache.set(uid, task.id)
                 return '', url_for('taskstatus', task_id=task.id), '爬取任务～'+url, \
                        {'display': 'none'}, '','',\
                        {}, False, False, href, href

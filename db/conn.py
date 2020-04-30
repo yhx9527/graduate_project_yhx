@@ -96,3 +96,15 @@ class Mymysql(object):
     def close(self):
         print('关闭数据库引擎...')
         self.engine.dispose()
+
+conn = None
+lock = threading.Lock()
+
+def get_conn():
+    global conn, lock
+    lock.acquire()
+    if not conn:
+        print('conn不存在重新初始化', conn)
+        conn = Mymysql()
+    lock.release()
+    return conn

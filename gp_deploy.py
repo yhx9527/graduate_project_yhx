@@ -75,5 +75,8 @@ def upload_deploy():
     app_cmd = 'supervisorctl restart svdca_app svdca_celery_beat svdca_celery'
     myssh.exc(app_cmd)
 
+'''
+若服务器重启了，则需要先运行 supervisord -c /etc/supervisord.conf
+'''
 if __name__ == '__main__':
     upload_deploy()

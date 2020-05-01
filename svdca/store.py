@@ -25,6 +25,8 @@ from db.db_models import Urltask, Post, User
 import random
 from db.conn import get_conn
 import pickle
+import threading
+lock = threading.Lock()
 
 CACHE_CONFIG = {
         # try 'filesystem' if you don't want to setup redis
@@ -41,6 +43,9 @@ server.db = get_conn()
 #stars, posts, users, comments, urltasks
 def random_time(len):
     return int(random.random()*len)
+
+MAX_EXPIRES = 6*30*24*60*60
+
 @cache.memoize(timeout=random_time(300))
 def global_store_rows(table):
     # simulate expensive query
@@ -55,7 +60,7 @@ def global_store_rows(table):
     print('更新完成，存入redis')
     return format(num, ',')
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=24*3600)
 def global_uid(url):
     try:
         arr = urlparse(url)
@@ -70,7 +75,7 @@ def global_uid(url):
         print(e)
         return None
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=24*3600)
 def global_urltask(uid):
     Session = server.db.Session
     session = Session()
@@ -78,7 +83,7 @@ def global_urltask(uid):
     session.close()
     return data
 
-@cache.memoize(timeout=random_time(1800))
+@cache.memoize(timeout=24*3600)
 def global_forUserWCdataCache(uid):
     print('重新查数据库', uid)
     post = pd.read_sql_query('select * from posts where user_id={}'.format(uid), server.db.engine)
@@ -94,7 +99,7 @@ def global_forUserWCdataCache(uid):
             'pie_posts': pie_posts,
             'similar_posts': similar_posts
         }
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def global_user_data(keyword):
     Session = server.db.Session
     session = Session()
@@ -127,7 +132,7 @@ def delete_global_forUserWCdata(uid):
 data_dir = os.path.join(cur_file_path,'data')
 city_geo = pd.read_csv(os.path.join(data_dir, 'city_geo.csv'))
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def global_all_posts():
     print('加载文章数据到内存...')
     if ENV == 'production':
@@ -136,17 +141,16 @@ def global_all_posts():
         posts = pd.read_csv(os.path.join(data_dir, 'posts.csv'))
     return pickle.dumps(posts)
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def global_all_users():
     print('加载用户数据到内存...')
     if ENV == 'production':
         users = pd.read_sql_query('select * from users', server.db.engine)
     else:
         users = pd.read_csv(os.path.join(data_dir, 'users.csv'))
-
     return pickle.dumps(users)
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def get_dataset_posts():
     posts = pickle.loads(global_all_posts())
 
@@ -168,7 +172,7 @@ def get_dataset_posts():
     dataset_posts = datalist.fillna(0).set_index('create_time')
     return dataset_posts
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def get_dataset_users():
     users = pickle.loads(global_all_users())
     temp_users = users[users['city'].notnull()].loc[:,['city', 'mplatform_followers_count', 'total_favorited', 'aweme_count']] #取值
@@ -196,7 +200,7 @@ def addGeo(row):
         row['city'] = res[0][1]
     return row
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def get_sunburt_users():
     users = pickle.loads(global_all_users())
     tag = ['一万以下', '万级', '十万级', '百万级', '千万级', '亿级']
@@ -266,16 +270,29 @@ def get_pie_posts(posts):
     pie_posts = pie_posts.apply(divide_posts, axis='columns')
     return pie_posts
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def get_duration_posts_home():
     posts = pickle.loads(global_all_posts())
     return get_duration_posts(posts)
 
-@cache.memoize(timeout=random_time(3600))
+@cache.memoize(timeout=MAX_EXPIRES)
 def get_pie_posts_home():
     posts = pickle.loads(global_all_posts())
     return get_pie_posts(posts)
 
 print('数据预处理...')
-dataset_posts = get_dataset_posts()
-global_all_users()
+dataset_posts = None
+# global_all_users()
+
+# 服务启动前的数据准备
+def prepare_data():
+    global dataset_posts
+    global_all_posts()
+    global_all_users()
+    dataset_posts = get_dataset_posts()
+    get_pie_posts_home()
+    get_duration_posts_home()
+    get_dataset_users()
+    get_sunburt_users()
+
+prepare_data()

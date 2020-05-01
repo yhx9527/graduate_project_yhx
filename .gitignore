@@ -13,6 +13,10 @@ diggout/tmp
 supply/proxy/douyin_analyse
 svdca/assets/html
 svdca/assets/img
+svdca/data/comments.csv
+svdca/data/posts.csv
+svdca/data/stars.csv
+svdca/data/users.csv
 config.py
 alembic.ini
 config_production.py

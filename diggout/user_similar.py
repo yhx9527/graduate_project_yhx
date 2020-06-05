@@ -54,7 +54,7 @@ def cut_word(df):
     result = df.groupby('user_id').agg({'user_id': 'min', 'desc': handle_agg})
     return result
 def cut_word2(df):
-    need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC', 'x']
+    need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC']
 
     ignore_words = stpwrdlst
 

@@ -143,7 +143,7 @@ def genLdaHtml(data, uid):
     pyLDAvis.save_html(ldadata, filepath)
     return os.path.join('/assets', 'html', filename)
 
-need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC', 'x']
+need_flag = ['n','nr', 'ns', 'nw','vn', 'j', 'eng', 'nt', 's', 'an', 'nz','nrt', 'nrfg', 'ORG','PER','LOC']
 
 def chinese_word_cut(text):
     text = re.sub(r'[^\w\s]', ' ', text).strip() #去掉标点符号

@@ -52,7 +52,7 @@ def prepare_data(origin_mgp, docs, vocab):
                 topic_term_dists_item.append(topic_term_dists_dict[k])
             topic_term_dists.append(topic_term_dists_item)
     data = {
-        'vocab': list(vocab),  # 单词列表
+        'vocab': list(vocab),  # 词汇集合
         'doc_lengths': doc_length,  # 每个文档包含的单词数量
         'term_frequency': temp_frequence,  # 单词频率(顺序符合单词列表)
         'doc_topic_dists': doc_topic_dists,  # 每个文档的主题占比
